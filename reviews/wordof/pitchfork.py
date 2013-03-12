@@ -3,6 +3,7 @@ __author__ = 'matthewgarden'
 import datetime
 import requests
 import logging
+import re
 from bs4 import BeautifulSoup
 from reviewparser import ReviewParser
 
@@ -23,7 +24,7 @@ class Pitchfork:
 		:type ignore_before: datetime.date
 		"""
 		self.url = url
-		self.parser = ReviewParser(':', 10, 'score', 'feedburner:origlink')
+		self.parser = ReviewParser(re.compile('(?P<artist>.+): (?P<album>.+)'), 10, 'score', 'feedburner:origlink')
 		self.ignore_before = ignore_before
 
 	@property

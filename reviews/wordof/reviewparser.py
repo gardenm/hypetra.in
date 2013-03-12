@@ -11,14 +11,14 @@ class ReviewParser:
 	"""
 	Class to parse an album review from an RSS feed's DOM.
 
-	:param title_separator: String that separates the artist and album in the review's title.
+	:param title_re: Regular expression object that can be used to get the artist and album from the RSS item's title.
 	:param max_score: The maximimum score the review site awards.
 	:param score_class: The CSS class assigned to scores on a review page for the review site.
 	:param orig_link_tag: The tag used in the RSS DOM for the original link (to the review on the site).
 	:param logger: Object to use to log errors and warnings. By default the logging library. Override to test error handling.
 	"""
-	def __init__(self, title_separator, max_score, score_class, orig_link_tag, logger=logging):
-		self.title_separator = title_separator
+	def __init__(self, title_re, max_score, score_class, orig_link_tag, logger=logging):
+		self.title_re = title_re
 		self.max_score = max_score
 		self.score_class = score_class
 		self.orig_link_tag = orig_link_tag
@@ -41,11 +41,14 @@ class ReviewParser:
 		if pubdate.date() <= ignore_before:
 			return None
 
-		try:
-			artist, album = [s.strip() for s in item.find('title').string.split(self.title_separator)]
-		except ValueError:
-			self.logger.error('Failed to unpack review title: "%s"' % item.find('title').string)
+		title_match = self.title_re.match(item.find('title').string.strip())
+
+		if not title_match:
+			self.logger.error('Failed to unpack review title "%s"' % item.find('title').string)
 			return None
+
+		artist = title_match.group('artist')
+		album = title_match.group('album')
 
 		link = item.find(self.orig_link_tag).string.strip()
 		desc = item.find('description').string.strip()
