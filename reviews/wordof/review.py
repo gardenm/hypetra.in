@@ -8,10 +8,10 @@ class Review:
 	def __init__(self, artist, album, link, description, score):
 		"""
 		"""
-		self.artist = artist
-		self.album = album
-		self.link = link
-		self.description = description
+		self.artist = artist.encode('utf-8')
+		self.album = album.encode('utf-8')
+		self.link = link.encode('utf-8')
+		self.description = description.encode('utf-8')
 		self.score = score
 
 	def __str__(self):

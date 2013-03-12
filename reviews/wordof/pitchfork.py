@@ -1,14 +1,12 @@
 __author__ = 'matthewgarden'
 
 import datetime
-import requests
-import logging
 import re
-from bs4 import BeautifulSoup
+from reviewsite import ReviewSite
 from reviewparser import ReviewParser
 
 
-class Pitchfork:
+class Pitchfork(ReviewSite):
 	"""
 	Parser for pitchfork.com album reviews
 	"""
@@ -23,21 +21,5 @@ class Pitchfork:
 		:param ignore_before: Only reviews published on or after this date will be handled.
 		:type ignore_before: datetime.date
 		"""
-		self.url = url
-		self.parser = ReviewParser(re.compile('(?P<artist>.+): (?P<album>.+)'), 10, 'score', 'feedburner:origlink')
-		self.ignore_before = ignore_before
-
-	@property
-	def reviews(self):
-		"""
-		Yields each review currently in the RSS feed.
-		"""
-		rss_req = requests.get(self.url)
-		if rss_req.status_code != 200:
-			logging.error('Failed to get RSS feed from "%s" with status %s' % (self.url, rss_req.status_code))
-			return
-
-		for item in BeautifulSoup(rss_req.text).find_all('item')[0:3]:
-			review = self.parser.parse(item, self.ignore_before)
-			if review:
-				yield review
+		parser = ReviewParser(re.compile('(?P<artist>.+): (?P<album>.+)'), 10, 'score', 'feedburner:origlink', '%a, %d %b %Y %H:%M:%S -0500')
+		ReviewSite.__init__(self, url, parser, ignore_before)

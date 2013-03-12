@@ -12,16 +12,18 @@ class ReviewParser:
 	Class to parse an album review from an RSS feed's DOM.
 
 	:param title_re: Regular expression object that can be used to get the artist and album from the RSS item's title.
-	:param max_score: The maximimum score the review site awards.
+	:param max_score: The maximum score the review site awards.
 	:param score_class: The CSS class assigned to scores on a review page for the review site.
 	:param orig_link_tag: The tag used in the RSS DOM for the original link (to the review on the site).
+	:param pubdate_format: datetime.datetime.strptime format string for the pubdates used by the RSS feed.
 	:param logger: Object to use to log errors and warnings. By default the logging library. Override to test error handling.
 	"""
-	def __init__(self, title_re, max_score, score_class, orig_link_tag, logger=logging):
+	def __init__(self, title_re, max_score, score_class, orig_link_tag, pubdate_format, logger=logging):
 		self.title_re = title_re
 		self.max_score = max_score
 		self.score_class = score_class
 		self.orig_link_tag = orig_link_tag
+		self.pubdate_format = pubdate_format
 		self.logger = logger
 
 	def parse(self, item, ignore_before=datetime.date.min):
@@ -36,7 +38,7 @@ class ReviewParser:
 		:type ignore_before: datetime.date
 		"""
 		pubdate_raw = item.find('pubdate').string.strip()
-		pubdate = datetime.datetime.strptime(pubdate_raw, '%a, %d %b %Y %H:%M:%S -0500')
+		pubdate = datetime.datetime.strptime(pubdate_raw, self.pubdate_format)
 
 		if pubdate.date() <= ignore_before:
 			return None
@@ -51,7 +53,7 @@ class ReviewParser:
 		album = title_match.group('album')
 
 		link = item.find(self.orig_link_tag).string.strip()
-		desc = item.find('description').string.strip()
+		desc = item.find('description').text.strip()
 
 		item_req = requests.get(link)
 		if item_req.status_code != 200:
