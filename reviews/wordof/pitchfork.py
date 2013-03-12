@@ -21,5 +21,6 @@ class Pitchfork(ReviewSite):
 		:param ignore_before: Only reviews published on or after this date will be handled.
 		:type ignore_before: datetime.date
 		"""
-		parser = ReviewParser(re.compile('(?P<artist>.+): (?P<album>.+)'), 10, 'score', 'feedburner:origlink', '%a, %d %b %Y %H:%M:%S -0500')
+		title_re = re.compile('(?P<artist>.+): (?P<album>.+)')
+		parser = ReviewParser(title_re, 10, 'score', 'feedburner:origlink', '%a, %d %b %Y %H:%M:%S')
 		ReviewSite.__init__(self, url, parser, ignore_before)

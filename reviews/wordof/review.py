@@ -15,4 +15,4 @@ class Review:
 		self.score = score
 
 	def __str__(self):
-		return '%s by %s: %0.2f' % (self.artist, self.album, self.score)
+		return '%s by %s: %0.2f' % (self.album, self.artist, self.score)

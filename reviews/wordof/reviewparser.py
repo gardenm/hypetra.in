@@ -26,6 +26,22 @@ class ReviewParser:
 		self.pubdate_format = pubdate_format
 		self.logger = logger
 
+	def remove_utc(self, date_str):
+		"""
+		Remove the +0000 style UTC timezone specifier, since python's strptime doesn't support %z
+		:param date_str: A date string.
+		"""
+		last_minus = date_str.rfind('-')
+		last_plus = date_str.rfind('+')
+
+		if last_minus != -1:
+			return date_str[0:last_minus]
+		elif last_plus != -1:
+			return date_str[0:last_plus]
+
+		# if the string doesn't contain the problematic substring then don't worry about it.
+		return date_str
+
 	def parse(self, item, ignore_before=datetime.date.min):
 		"""
 		Gather all information from a review entry in the RSS feed and return the corresponding Review object.
@@ -37,8 +53,13 @@ class ReviewParser:
 		:param ignore_before: Ignore any reviews that were published before this date.
 		:type ignore_before: datetime.date
 		"""
-		pubdate_raw = item.find('pubdate').string.strip()
-		pubdate = datetime.datetime.strptime(pubdate_raw, self.pubdate_format)
+		pubdate_raw = self.remove_utc(item.find('pubdate').string).strip()
+
+		try:
+			pubdate = datetime.datetime.strptime(pubdate_raw, self.pubdate_format)
+		except ValueError:
+			self.logger.error('Failed to parse pubdate "%s" using format "%s"' % (pubdate_raw, self.pubdate_format))
+			return None
 
 		if pubdate.date() <= ignore_before:
 			return None

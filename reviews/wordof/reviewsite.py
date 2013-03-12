@@ -35,7 +35,7 @@ class ReviewSite:
 			self.logger.error('Failed to get RSS feed from "%s" with status %s' % (self.url, rss_req.status_code))
 			return
 
-		for item in BeautifulSoup(rss_req.text).find_all('item')[0:3]:
+		for item in BeautifulSoup(rss_req.text).find_all('item'):
 			review = self.parser.parse(item, self.ignore_before)
 			if review:
 				yield review
