@@ -1,0 +1,10 @@
+extends layout
+
+block content
+	h1= title
+	#reviews
+		- each review in reviews
+			div.review
+				div.what.artist= review.artist
+				div.what.album
+					a(href= review.link)= review.album
