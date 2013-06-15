@@ -2,7 +2,8 @@ __author__ = 'matthewgarden'
 
 
 class Review:
-	"""Class to represent an album review.
+	"""
+	Class to represent an album review.
 	"""
 
 	def __init__(self, artist, album, link, description, score):
