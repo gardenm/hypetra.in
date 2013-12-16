@@ -82,11 +82,14 @@ class ReviewParser:
 			return None
 
 		item_html = BeautifulSoup(item_req.text)
-		score_raw = item_html.find('span', {'class': self.score_class}).string.strip()
-		try:
-			score = float(score_raw) / self.max_score
-		except ValueError:
-			self.logger.error('Failed to parse score "%s" at %s' % (score_raw, link))
-			return None
+		score_raw = item_html.find('span', {'class': self.score_class})
+		if (score_raw is None):
+			score = 0
+		else:
+			try:
+				score = float(score_raw.string.strip()) / self.max_score
+			except ValueError:
+				self.logger.error('Failed to parse score "%s" at %s' % (score_raw, link))
+				return None
 
 		return Review(artist, album, link, desc, score)
