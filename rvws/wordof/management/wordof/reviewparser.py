@@ -80,12 +80,12 @@ class ReviewParser:
 			link = item.find(self.orig_link_tag).string.strip()
 		except AttributeError:
 			self.logger.error('Failed to get link from review for %s - %s' % (artist, album))
-			return Review(artist, album, '', desc, 0)
+			return Review(artist, album, '', desc, 0, pubdate)
 
 		item_req = requests.get(link)
 		if item_req.status_code != 200:
 			self.logger.error('Failed to get review at %s with status %s' % (link, item_req.status_code))
-			return Review(artist, album, '', desc, 0)
+			return Review(artist, album, '', desc, 0, pubdate)
 
 		item_html = BeautifulSoup(item_req.text)
 		score_raw = item_html.find('span', {'class': self.score_class})
@@ -96,6 +96,6 @@ class ReviewParser:
 				score = float(score_raw.string.strip()) / self.max_score
 			except ValueError:
 				self.logger.error('Failed to parse score "%s" at %s' % (score_raw, link))
-				return Review(artist, album, link, desc, 0)
+				return Review(artist, album, link, desc, 0, pubdate)
 
-		return Review(artist, album, link, desc, score)
+		return Review(artist, album, link, desc, score, pubdate)
