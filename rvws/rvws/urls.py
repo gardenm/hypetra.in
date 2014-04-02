@@ -1,16 +1,18 @@
 from django.conf.urls import patterns, include, url
-from wordof.api import ArtifactResource
+from tastypie.api import Api
+from wordof.api import *
 
 from django.contrib import admin
 admin.autodiscover()
 
-artifact_resource = ArtifactResource()
+
+v1_api = Api(api_name='v1')
+for resource in [ArtistResource(), ArtifactResource(), CriticResource(), CategoryResource(), ReviewResource()]:
+    v1_api.register(resource)
+
+artist_resource = ArtistResource()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'rvws.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^api/', include(artifact_resource.urls)),
+    url(r'^api/', include(v1_api.urls)),
 )
